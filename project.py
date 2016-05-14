@@ -1,6 +1,7 @@
 from __future__ import division
 import random
 import networkx
+import math
 
 class Point:
     def __init__(self, x, y):
@@ -49,14 +50,24 @@ def generate_runs(N, t, reps, betas):
     return runs
 
 def transform(L, alpha):
-    """Transforms a list of Run objects into 2 plot ready lists of [s(t) * sqrt(t)] and [t * beta^{alpha}]
+    """Transforms a list of Run objects into 2 plot ready lists of [s(t)/sqrt(t)] and [t * beta^{alpha}]
     to be plotted.
 
     Parameters:
         L - the list of runs to transform
         alpha - our guess at the alpha that will collapse the plot into a smooth function"""
 
-
+    x_vals = []
+    y_vals = []
+    for run in L:
+        beta = run.beta
+        s_vals = run.s
+        for i in range(1, len(s_vals)):
+            x = i * beta**alpha
+            y = s_vals[i]/math.sqrt(i)
+            x_vals.append(x)
+            y_vals.append(y)
+    return x_vals, y_vals
 
 def simulate_random_walk(g, t):
     """simulates a random walk on graph g for t steps. Returns a list containing
