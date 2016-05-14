@@ -1,3 +1,4 @@
+from __future__ import division
 import random
 import networkx
 
@@ -34,17 +35,39 @@ def run_the_damn_simulation(N, t, reps, betas):
     # graph the thing
 
 
-def simulate_random_walk(g, t, reps, beta):
-    """simulates a random walk on graph g for t steps reps times. Returns a list of Points."""
-    # list = []
-    # for rep in range(reps):
+def simulate_random_walk(g, t):
+    """simulates a random walk on graph g for t steps. Returns a list containing
+    the fraction of the graph visited, indexed by number of elapsed timesteps."""
+
+    fraction_visited = []
     visited = set()
-    pos = random.choice(g.nodes())
-    visited.add(pos)
     for step in range(t):
-        neighbors = g.neighbors(pos)
-        next = random.choice(neighbors)
-        pos = next
+        if step == 0:
+            pos = random.choice(g.nodes())
+        else:
+            neighbors = g.neighbors(pos)
+            next = random.choice(neighbors)
+            pos = next
         visited.add(pos)
-    print visited
-    return visited
+        frac = len(visited)/networkx.number_of_nodes(g)
+        fraction_visited.append(frac)
+    return fraction_visited
+
+## Questions
+
+# 1. How to aggregate the Points over multiple runs on the same graph?
+
+# Use a list where index is timestep and value is fraction covered
+# Aggregating before returning means you don't have to store beta while you aggregate 
+# Python pickle? 
+# Could save output to files & aggregate by reading in the files
+
+# 2. How to curve fit? Can pyplot do this?
+# Fiddle with parameter by hand and see how the plot responds
+# Make sure to save plot to file so you don't have to rerun it for different alphas
+
+# 3. How to store the points for easiest graphing? List of tuples? List of lists? 
+# List of 2-element dumb data structure? 
+# Can pass 2 lists into plt.plot
+# If you want to be fancy, can do scatterplots that use additional attributes (color, size, shape)
+# List of tuples may not be possible
