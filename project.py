@@ -49,6 +49,27 @@ def generate_runs(N, t, reps, betas):
 
     return runs
 
+def generate_runs_ER(N, t, reps, p):
+
+    runs = []
+    
+    graph = networkx.watts_strogatz_graph(N, p)
+    list_of_s = [simulate_random_walk(graph,t) for x in range(reps)]
+    s_avg = map(mean, zip(*list_of_s))
+    runs.append(Run(beta,s_avg))
+
+    return runs
+
+def generate_runs_chain(N, t, reps):
+    runs = []
+    
+    graph = networkx.path_graph(N)
+    list_of_s = [simulate_random_walk(graph,t) for x in range(reps)]
+    s_avg = map(mean, zip(*list_of_s))
+    runs.append(Run(beta,s_avg))
+
+    return runs
+
 def transform(L, alpha):
     """Transforms a list of Run objects into 2 plot ready lists of [s(t)/sqrt(t)] and [t * beta^{alpha}]
     to be plotted.
@@ -87,21 +108,11 @@ def simulate_random_walk(g, t):
         fraction_visited.append(frac)
     return fraction_visited
 
-## Questions
+## Ideas
 
-# 1. How to aggregate the Points over multiple runs on the same graph?
-
-# Use a list where index is timestep and value is fraction covered
-# Aggregating before returning means you don't have to store beta while you aggregate 
 # Python pickle? 
 # Could save output to files & aggregate by reading in the files
 
-# 2. How to curve fit? Can pyplot do this?
+# How to curve fit? Can pyplot do this?
 # Fiddle with parameter by hand and see how the plot responds
 # Make sure to save plot to file so you don't have to rerun it for different alphas
-
-# 3. How to store the points for easiest graphing? List of tuples? List of lists? 
-# List of 2-element dumb data structure? 
-# Can pass 2 lists into plt.plot
-# If you want to be fancy, can do scatterplots that use additional attributes (color, size, shape)
-# List of tuples may not be possible
