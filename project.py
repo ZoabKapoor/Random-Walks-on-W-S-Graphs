@@ -28,67 +28,14 @@ class Run:
 def mean(L):
     return sum(L)/len(L)
 
-def generate_runs(N, t, reps, betas):
-    """Creates large W-S graphs with varying rewiring probability, averages
-    reps random walks for t timesteps in these graphs, returns list of Run objects. 
-    
-    Parameters: 
-        N - number of nodes in the W-S graph
-        reps - number of times to repeat each random walk
-        t - number of timesteps to run the random walks for
-        betas - list of rewiring probabilities to create W-S graphs with"""
-    
+def create_WS_graphs(N, betas):
+    """Creates list of W-S graphs with N nodes and rewiring probabilities corresponding to the values in betas"""
     NUM_NEIGHBORS = 2
-    runs = []
-    
+
+    graphs = []
     for beta in betas:
-        graph = networkx.watts_strogatz_graph(N, NUM_NEIGHBORS, beta)
-        list_of_s = [simulate_random_walk(graph,t) for x in range(reps)]
-        s_avg = map(mean, zip(*list_of_s))
-        runs.append(Run(beta,s_avg))
-
-    return runs
-
-def generate_runs_ER(N, t, reps, p):
-
-    runs = []
-    
-    graph = networkx.watts_strogatz_graph(N, p)
-    list_of_s = [simulate_random_walk(graph,t) for x in range(reps)]
-    s_avg = map(mean, zip(*list_of_s))
-    runs.append(Run(beta,s_avg))
-
-    return runs
-
-def generate_runs_chain(N, t, reps):
-    runs = []
-    
-    graph = networkx.path_graph(N)
-    list_of_s = [simulate_random_walk(graph,t) for x in range(reps)]
-    s_avg = map(mean, zip(*list_of_s))
-    runs.append(Run(beta,s_avg))
-
-    return runs
-
-def transform(L, alpha):
-    """Transforms a list of Run objects into 2 plot ready lists of [s(t)/sqrt(t)] and [t * beta^{alpha}]
-    to be plotted.
-
-    Parameters:
-        L - the list of runs to transform
-        alpha - our guess at the alpha that will collapse the plot into a smooth function"""
-
-    x_vals = []
-    y_vals = []
-    for run in L:
-        beta = run.beta
-        s_vals = run.s
-        for i in range(1, len(s_vals)):
-            x = i * beta**alpha
-            y = s_vals[i]/math.sqrt(i)
-            x_vals.append(x)
-            y_vals.append(y)
-    return x_vals, y_vals
+        graphs.append(networkx.watts_strogatz_graph(N, NUM_NEIGHBORS, beta))
+    return graphs
 
 def simulate_random_walk(g, t):
     """simulates a random walk on graph g for t steps. Returns a list containing
@@ -107,6 +54,45 @@ def simulate_random_walk(g, t):
         frac = len(visited)/networkx.number_of_nodes(g)
         fraction_visited.append(frac)
     return fraction_visited
+
+def avg_randwalks(graphs, t, reps):
+    """Averages reps random walks for t timesteps in the input graphs, returns list of 
+    the fraction of the graph visited in each timestep.
+    
+    Parameters: 
+        graphs - the list of graphs to do the random walks over
+        reps - number of times to repeat each random walk
+        t - number of timesteps to run each random walk for"""
+    
+    NUM_NEIGHBORS = 2
+    averages = []
+    
+    for graph in graphs:
+        list_of_s = [simulate_random_walk(graph,t) for x in range(reps)]
+        s_avg = map(mean, zip(*list_of_s))
+        averages.append(s_avg)
+
+    return averages
+
+def transform(L, alpha):
+    """Transforms a list of Run objects into 2 plot ready lists of [s(t)/sqrt(t)] and [t * beta^{alpha}]
+    to be plotted.
+
+    Parameters:
+        L - the list of Runs to transform
+        alpha - our guess at the alpha that will collapse the plot into a smooth function"""
+
+    x_vals = []
+    y_vals = []
+    for run in L:
+        beta = run.beta
+        s_vals = run.s
+        for i in range(1, len(s_vals)):
+            x = i * beta**alpha
+            y = s_vals[i]/math.sqrt(i)
+            x_vals.append(x)
+            y_vals.append(y)
+    return x_vals, y_vals
 
 ## Ideas
 
