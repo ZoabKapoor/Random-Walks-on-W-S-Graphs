@@ -29,12 +29,20 @@ def mean(L):
     return sum(L)/len(L)
 
 def create_WS_graphs(N, betas):
-    """Creates list of W-S graphs with N nodes and rewiring probabilities corresponding to the values in betas"""
+    """Creates list of Newman W-S graphs with N nodes and rewiring probabilities corresponding to the values in betas"""
     NUM_NEIGHBORS = 2
 
     graphs = []
     for beta in betas:
         graphs.append(networkx.watts_strogatz_graph(N, NUM_NEIGHBORS, beta))
+    return graphs
+
+def create_newman_WS_graphs(N, betas):
+    NUM_NEIGHBORS = 2
+
+    graphs = []
+    for beta in betas:
+        graphs.append(networkx.newman_watts_strogatz_graph(N, NUM_NEIGHBORS, beta))
     return graphs
 
 def simulate_random_walk(g, t):
