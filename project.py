@@ -3,16 +3,6 @@ import random
 import networkx
 import math
 
-class Point:
-    def __init__(self, x, y):
-        # x value corresponds to f(t * beta^{alpha})
-        self.x = x
-        # y value corresponds to s(t)/sqrt(t)
-        self.y = y
-    
-    def __repr__(self):
-        return "(" + str(self.x) + "," + str(self.y) + ")"
-
 class Run:
     """Stores the average (s(t),t) and beta for a run of the
     simulation."""
@@ -47,9 +37,9 @@ def create_newman_WS_graphs(N, betas):
 
 def simulate_random_walk(g, t):
     """simulates a random walk on graph g for t steps. Returns a list containing
-    the fraction of the graph visited, indexed by number of elapsed timesteps."""
+    the number of unique nodes of the graph visited, indexed by number of elapsed timesteps."""
 
-    fraction_visited = []
+    num_uniq_visited = []
     visited = set()
     for step in range(t):
         if step == 0:
@@ -59,13 +49,12 @@ def simulate_random_walk(g, t):
             next = random.choice(neighbors)
             pos = next
         visited.add(pos)
-        frac = len(visited)/networkx.number_of_nodes(g)
-        fraction_visited.append(frac)
-    return fraction_visited
+        num_uniq_visited.append(len(visited))
+    return num_uniq_visited
 
 def avg_randwalks(graphs, t, reps):
     """Averages reps random walks for t timesteps in the input graphs, returns list of 
-    the fraction of the graph visited in each timestep.
+    the number of unique nodes of the graph visited in each timestep.
     
     Parameters: 
         graphs - the list of graphs to do the random walks over
@@ -109,4 +98,4 @@ def transform(L, alpha):
 
 # How to curve fit? Can pyplot do this?
 # Fiddle with parameter by hand and see how the plot responds
-# Make sure to save plot to file so you don't have to rerun it for different alphas
+# Make sure to save plot to file so you don't have to rerun it
